@@ -4,22 +4,25 @@ interface FormattedPresence {
   status: string;
   activities: FormattedActivity[];
 }
-interface FormattedActivity {
+export interface FormattedActivity {
   name: string;
   createdTimestamp: number | null;
   details: string | null;
   state: string | null;
   syncId: string | null;
   url?: string | null;
+  type: number;
   assets?: {
     largeText?: string | null;
     smallText?: string | null;
+    largeImageUrl: string | null;
+    smallImageUrl: string | null;
     largeImage?: string | null;
     smallImage?: string | null;
   };
   timestamps?: {
-    start: Date | null;
-    end: Date | null;
+    start: number | null;
+    end: number | null;
   } | null;
 }
 
