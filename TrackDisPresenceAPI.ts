@@ -33,6 +33,19 @@ export const createPresenceTracker = (userId: string) => {
   const ws = new WebSocket(URL + `/${userId}`);
   ws.onopen = () => {
     console.log("Connected to TrackDisPresence");
+    startPingInterval();
+  };
+
+  let intervalId: NodeJS.Timeout;
+  const startPingInterval = () => {
+    intervalId = setInterval(() => {
+      ws.send("ping");
+    }, 30000);
+  };
+
+  ws.onclose = () => {
+    console.log("Disconnected from TrackDisPresence");
+    clearInterval(intervalId);
   };
 
   ws.onmessage = (message) => {

@@ -1,5 +1,8 @@
 import { RPCClient } from "@nerimity/nerimity.js";
-import { createPresenceTracker, type FormattedActivity } from "./TrackDisPresenceAPI";
+import {
+  createPresenceTracker,
+  type FormattedActivity,
+} from "./TrackDisPresenceAPI";
 
 const client = new RPCClient();
 
@@ -12,7 +15,7 @@ const ActivityType = {
   WATCHING: 3,
   CUSTOM: 4,
   COMPETING: 5,
-}
+};
 const ActivityTypeToNameAndAction = (activity: FormattedActivity) => {
   switch (activity.type) {
     case ActivityType.PLAYING:
@@ -30,7 +33,7 @@ const ActivityTypeToNameAndAction = (activity: FormattedActivity) => {
     default:
       return { name: activity.name || "Unknown", action: "Playing" };
   }
-}
+};
 client.on("ready", () => {
   console.log("Connected to Nerimity Client.");
   if (!tracker) {
@@ -38,7 +41,7 @@ client.on("ready", () => {
   }
 
   tracker.events.presenceUpdate = (data) => {
-    const activity = data.activities[0];
+    const activity = data.activities.at(-1);
     if (!activity) {
       client.send(null);
       return;
@@ -48,21 +51,23 @@ client.on("ready", () => {
 
     const isSpotify = !!activity.assets?.largeImage?.startsWith("spotify:");
 
- 
     if (isSpotify && activity.syncId) {
-      url = `https://open.spotify.com/track/${activity.syncId}`
+      url = `https://open.spotify.com/track/${activity.syncId}`;
     }
 
-    console.log(activity.assets)
+    console.log(`Activity Update: ${activity?.name || null}`);
     client.send({
       startedAt: activity.timestamps?.start || undefined,
       endsAt: activity.timestamps?.end || undefined,
-      imgSrc: activity.assets?.largeImageUrl || activity.assets?.smallImageUrl || undefined,
+      imgSrc:
+        activity.assets?.largeImageUrl ||
+        activity.assets?.smallImageUrl ||
+        undefined,
       title: activity.details || undefined,
       subtitle: activity.state || undefined,
       link: url || activity.url,
       ...ActivityTypeToNameAndAction(activity),
-    })
+    });
   };
 });
 
